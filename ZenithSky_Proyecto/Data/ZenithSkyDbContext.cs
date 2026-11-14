@@ -31,11 +31,11 @@ namespace ZenithSky_Proyecto.Data
                 e.HasKey(x => x.AirlineId);
                 e.Property(x => x.AirlineId).HasColumnName("airline_id").ValueGeneratedOnAdd();
                 e.Property(x => x.Iata).HasColumnName("iata").HasColumnType("char(2)").IsRequired();
-                e.Property(x => x.Airlinename).HasColumnName("airlinename").HasMaxLength(100).IsRequired();
-                e.Property(x => x.BaseAirport).HasColumnName("base_airport");
+                e.Property(x => x.AirlineName).HasColumnName("airlinename").HasMaxLength(100).IsRequired();
+                e.Property(x => x.BaseAirportId).HasColumnName("base_airport");
                 e.HasOne(x => x.Airport)
                  .WithMany(a => a.Airlines)
-                 .HasForeignKey(x => x.BaseAirport)
+                 .HasForeignKey(x => x.BaseAirportId)
                  .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -56,7 +56,7 @@ namespace ZenithSky_Proyecto.Data
                 e.Property(x => x.Capacity).HasColumnName("capacity");
                 e.Property(x => x.TypeId).HasColumnName("type_id");
                 e.Property(x => x.AirlineId).HasColumnName("airline_id");
-                e.HasOne(x => x.Type)
+                e.HasOne(x => x.AirplaneType)
                  .WithMany(t => t.Airplanes)
                  .HasForeignKey(x => x.TypeId)
                  .OnDelete(DeleteBehavior.Restrict);

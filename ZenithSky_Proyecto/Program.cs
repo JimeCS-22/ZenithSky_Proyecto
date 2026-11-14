@@ -1,22 +1,36 @@
+using Microsoft.EntityFrameworkCore;
+using ZenithSky_Proyecto.Common;
+using ZenithSky_Proyecto.Data;
+using ZenithSky_Proyecto.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Data
+builder.Services.AddDbContext<ZenithSkyDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ZenithSky")));
 
+// Business / Services
+builder.Services.AddScoped<IAirportService, AirportService>();
+builder.Services.AddScoped<IAirlineService, AirlineService>();
+builder.Services.AddScoped<IAirplaneService, AirplaneService>();
+builder.Services.AddScoped<IAirplaneTypeService, AirplaneTypeService>();
+
+// Controllers + manejo global de errores 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+// Swagger / OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+app.UseExceptionHandler();
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
+app.UseSwagger();
+app.UseSwaggerUI();
+app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 
 app.MapControllers();
 

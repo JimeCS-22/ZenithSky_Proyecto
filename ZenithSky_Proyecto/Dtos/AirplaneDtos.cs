@@ -1,28 +1,28 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
-namespace ZenithSky_Proyecto.Dtos
+namespace ZenithSky_Proyecto.Dtos;
+
+public class AirplaneRequestDto
 {
-    public class AirplaneDtos
-    {
-        public class AirplaneRequest
-        {
-            [Range(1, int.MaxValue, ErrorMessage = "capacity debe ser mayor que 0.")]
-            public int Capacity { get; set; }
+    [JsonPropertyName("capacity")]
+    [Range(1, int.MaxValue, ErrorMessage = "La capacidad debe ser mayor a 0.")]
+    public int Capacity { get; set; }
 
-            [Range(1, int.MaxValue, ErrorMessage = "typeId es obligatorio.")]
-            public int TypeId { get; set; }
+    [JsonPropertyName("type_id")]
+    [Range(1, int.MaxValue, ErrorMessage = "El tipo de avión es obligatorio.")]
+    public int TypeId { get; set; }
 
-            [Range(1, int.MaxValue, ErrorMessage = "airlineId es obligatorio.")]
-            public int AirlineId { get; set; }
-        }
-
-        public record AirplaneDto(
-            int AirplaneId,
-            int Capacity,
-            int TypeId,
-            string TypeIdentifier,
-            string? TypeDescription,
-            int AirlineId,
-            string AirlineName);
-    }
+    [JsonPropertyName("airline_id")]
+    [Range(1, int.MaxValue, ErrorMessage = "La aerolínea es obligatoria.")]
+    public int AirlineId { get; set; }
 }
+
+public record AirplaneResponseDto(
+    [property: JsonPropertyName("airplane_id")] int AirplaneId,
+    [property: JsonPropertyName("capacity")] int Capacity,
+    [property: JsonPropertyName("type_id")] int TypeId,
+    [property: JsonPropertyName("type_identifier")] string TypeIdentifier,
+    [property: JsonPropertyName("type_description")] string? TypeDescription,
+    [property: JsonPropertyName("airline_id")] int AirlineId,
+    [property: JsonPropertyName("airline_name")] string AirlineName);

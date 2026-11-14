@@ -3,4 +3,280 @@
 GET {{ZenithSky_Proyecto_HostAddress}}/weatherforecast/
 Accept: application/json
 
+# 1. AIRPORT TYPES (catalogo)
+################################################################
+
+### GET /api/airplane-types
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airplane-types
+Accept: application/json
+
+################################################################
+# 2. AIRPORTS
+################################################################
+
+### GET /api/airports (todos)
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airports
+Accept: application/json
+
+### GET /api/airports?search= (por nombre, IATA o ICAO)
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airports?search=SJO
+Accept: application/json
+
 ###
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airports?search=Madrid
+Accept: application/json
+
+###
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airports?search=KJFK
+Accept: application/json
+
+### GET /api/airports/{id}
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airports/1
+Accept: application/json
+
+### GET /api/airports/{id} inexistente -> 404
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airports/999
+Accept: application/json
+
+### POST /api/airports -> 201
+# @name createAirport
+POST {{ZenithSky_Proyecto_HostAddress}}/api/airports
+Content-Type: application/json
+
+{
+  "iata": "PTY",
+  "icao": "MPTO",
+  "name": "Aeropuerto Internacional de Tocumen"
+}
+
+###
+@newAirportId = {{createAirport.response.body.$.airport_id}}
+
+### PUT /api/airports/{id} -> 200
+PUT {{ZenithSky_Proyecto_HostAddress}}/api/airports/{{newAirportId}}
+Content-Type: application/json
+
+{
+  "iata": "PTY",
+  "icao": "MPTO",
+  "name": "Tocumen International Airport"
+}
+
+### POST IATA duplicado -> 409
+POST {{ZenithSky_Proyecto_HostAddress}}/api/airports
+Content-Type: application/json
+
+{
+  "iata": "SJO",
+  "icao": "ZZZZ",
+  "name": "Duplicado por IATA"
+}
+
+### POST ICAO duplicado -> 409
+POST {{ZenithSky_Proyecto_HostAddress}}/api/airports
+Content-Type: application/json
+
+{
+  "iata": "ZZZ",
+  "icao": "MROC",
+  "name": "Duplicado por ICAO"
+}
+
+### POST IATA de 2 letras -> 400
+POST {{ZenithSky_Proyecto_HostAddress}}/api/airports
+Content-Type: application/json
+
+{
+  "iata": "AB",
+  "icao": "ABCD",
+  "name": "IATA invalido"
+}
+
+### POST ICAO de 5 letras y sin nombre -> 400
+POST {{ZenithSky_Proyecto_HostAddress}}/api/airports
+Content-Type: application/json
+
+{
+  "iata": "ABC",
+  "icao": "ABCDE"
+}
+
+### PUT inexistente -> 404
+PUT {{ZenithSky_Proyecto_HostAddress}}/api/airports/999
+Content-Type: application/json
+
+{
+  "iata": "QQQ",
+  "icao": "QQQQ",
+  "name": "No existe"
+}
+
+### DELETE aeropuerto que es base de una aerolinea (SJO) -> 409
+DELETE {{ZenithSky_Proyecto_HostAddress}}/api/airports/1
+
+################################################################
+# 3. AIRLINES
+################################################################
+
+### GET /api/airlines (incluye base_airport_info)
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airlines
+Accept: application/json
+
+### GET /api/airlines/{id}
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airlines/1
+Accept: application/json
+
+### GET /api/airlines/{id} inexistente -> 404
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airlines/999
+Accept: application/json
+
+### POST /api/airlines (base = aeropuerto recien creado) -> 201
+# @name createAirline
+POST {{ZenithSky_Proyecto_HostAddress}}/api/airlines
+Content-Type: application/json
+
+{
+  "iata": "CM",
+  "airlinename": "Copa Airlines",
+  "base_airport": {{newAirportId}}
+}
+
+###
+@newAirlineId = {{createAirline.response.body.$.airline_id}}
+
+### PUT /api/airlines/{id} -> 200
+PUT {{ZenithSky_Proyecto_HostAddress}}/api/airlines/{{newAirlineId}}
+Content-Type: application/json
+
+{
+  "iata": "CM",
+  "airlinename": "Copa Airlines Panama",
+  "base_airport": {{newAirportId}}
+}
+
+### POST con aeropuerto base inexistente -> 400
+POST {{ZenithSky_Proyecto_HostAddress}}/api/airlines
+Content-Type: application/json
+
+{
+  "iata": "XX",
+  "airlinename": "Aerolinea fantasma",
+  "base_airport": 999
+}
+
+### POST con IATA de 3 caracteres -> 400
+POST {{ZenithSky_Proyecto_HostAddress}}/api/airlines
+Content-Type: application/json
+
+{
+  "iata": "XYZ",
+  "airlinename": "IATA invalido",
+  "base_airport": 1
+}
+
+### DELETE aerolinea con aviones asignados (ZS) -> 409
+DELETE {{ZenithSky_Proyecto_HostAddress}}/api/airlines/1
+
+################################################################
+# 4. AIRPLANES
+################################################################
+
+### GET /api/airplanes (con nombre de aerolinea y tipo)
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airplanes
+Accept: application/json
+
+### GET /api/airplanes?typeId=
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airplanes?typeId=1
+Accept: application/json
+
+### GET /api/airplanes?airlineId=
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airplanes?airlineId=1
+Accept: application/json
+
+### GET /api/airplanes?typeId=&airlineId= (ambos filtros)
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airplanes?typeId=2&airlineId=1
+Accept: application/json
+
+### GET /api/airplanes/{id}
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airplanes/1
+Accept: application/json
+
+### GET /api/airplanes/{id} inexistente -> 404
+GET {{ZenithSky_Proyecto_HostAddress}}/api/airplanes/999
+Accept: application/json
+
+### POST /api/airplanes (aerolinea recien creada) -> 201
+# @name createAirplane
+POST {{ZenithSky_Proyecto_HostAddress}}/api/airplanes
+Content-Type: application/json
+
+{
+  "capacity": 150,
+  "type_id": 1,
+  "airline_id": {{newAirlineId}}
+}
+
+###
+@newAirplaneId = {{createAirplane.response.body.$.airplane_id}}
+
+### PUT /api/airplanes/{id} -> 200
+PUT {{ZenithSky_Proyecto_HostAddress}}/api/airplanes/{{newAirplaneId}}
+Content-Type: application/json
+
+{
+  "capacity": 160,
+  "type_id": 2,
+  "airline_id": {{newAirlineId}}
+}
+
+### POST capacity = 0 -> 400
+POST {{ZenithSky_Proyecto_HostAddress}}/api/airplanes
+Content-Type: application/json
+
+{
+  "capacity": 0,
+  "type_id": 1,
+  "airline_id": 1
+}
+
+### POST tipo de avion inexistente -> 400
+POST {{ZenithSky_Proyecto_HostAddress}}/api/airplanes
+Content-Type: application/json
+
+{
+  "capacity": 100,
+  "type_id": 999,
+  "airline_id": 1
+}
+
+### POST aerolinea inexistente -> 400
+POST {{ZenithSky_Proyecto_HostAddress}}/api/airplanes
+Content-Type: application/json
+
+{
+  "capacity": 100,
+  "type_id": 1,
+  "airline_id": 999
+}
+
+################################################################
+# 5. LIMPIEZA (orden importante por las reglas de integridad)
+################################################################
+
+### DELETE aeropuerto de prueba mientras su aerolinea existe -> 409
+DELETE {{ZenithSky_Proyecto_HostAddress}}/api/airports/{{newAirportId}}
+
+### DELETE aerolinea de prueba mientras tiene un avion -> 409
+DELETE {{ZenithSky_Proyecto_HostAddress}}/api/airlines/{{newAirlineId}}
+
+### DELETE avion de prueba -> 204
+DELETE {{ZenithSky_Proyecto_HostAddress}}/api/airplanes/{{newAirplaneId}}
+
+### DELETE avion inexistente -> 404
+DELETE {{ZenithSky_Proyecto_HostAddress}}/api/airplanes/{{newAirplaneId}}
+
+### DELETE aerolinea de prueba (ya sin aviones) -> 204
+DELETE {{ZenithSky_Proyecto_HostAddress}}/api/airlines/{{newAirlineId}}
+
+### DELETE aeropuerto de prueba (ya sin aerolineas) -> 204
+DELETE {{ZenithSky_Proyecto_HostAddress}}/api/airports/{{newAirportId}}

@@ -7,7 +7,7 @@
         public int TypeId { get; set; }      // FK -> airplane_type
         public int AirlineId { get; set; }   // FK -> airline
 
-        public AirplaneType? Type { get; set; }
+        public AirplaneType? AirplaneType { get; set; }
         public Airline? Airline { get; set; }
     }
 }
